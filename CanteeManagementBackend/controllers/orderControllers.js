@@ -123,12 +123,96 @@ const getCustomerOrders = async (req, res) => {
 };
 
 // 📊 Get Daily Orders Analysis for Admin
+// const getDailyOrdersAnalysis = async (req, res) => {
+//     try {
+//         const today = new Date();
+//         today.setHours(0, 0, 0, 0);
+
+//         const dailyOrders = await Order.find({ orderedAt: { $gte: today } });
+
+//         const totalRevenue = dailyOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+//         const statusCounts = dailyOrders.reduce((acc, order) => {
+//             acc[order.status] = (acc[order.status] || 0) + 1;
+//             return acc;
+//         }, {});
+
+//         res.json({
+//             totalOrders: dailyOrders.length,
+//             totalRevenue,
+//             statusCounts
+//         });
+//     } catch (error) {
+//         console.error("Error fetching daily orders:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
+
+
+// const getDailyOrdersAnalysis = async (req, res) => {
+//     try {
+//         const now = new Date();
+//         const todayStartUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+//         const tomorrowStartUTC = new Date(todayStartUTC);
+//         tomorrowStartUTC.setUTCDate(tomorrowStartUTC.getUTCDate() + 1);
+
+//         // Fetch orders placed today in UTC time
+//         const dailyOrders = await Order.find({
+//             orderedAt: { $gte: todayStartUTC, $lt: tomorrowStartUTC }
+//         });
+
+//         const totalRevenue = dailyOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+//         const statusCounts = dailyOrders.reduce((acc, order) => {
+//             acc[order.status] = (acc[order.status] || 0) + 1;
+//             return acc;
+//         }, {});
+
+//         res.json({
+//             totalOrders: dailyOrders.length,
+//             totalRevenue,
+//             statusCounts
+//         });
+//     } catch (error) {
+//         console.error("Error fetching daily orders:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
+
+
+// const getDailyOrdersAnalysis = async (req, res) => {
+//     try {
+//         const { date } = req.query;
+//         if (!date) return res.status(400).json({ message: "Date is required" });
+
+//         const selectedDate = new Date(date);
+//         selectedDate.setHours(0, 0, 0, 0);
+//         const nextDay = new Date(selectedDate);
+//         nextDay.setDate(nextDay.getDate() + 1);
+
+//         const dailyOrders = await Order.find({
+//             orderedAt: { $gte: selectedDate, $lt: nextDay }
+//         });
+
+//         res.json({ orders: dailyOrders });
+//     } catch (error) {
+//         console.error("Error fetching daily orders:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
+
 const getDailyOrdersAnalysis = async (req, res) => {
     try {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0); // Reset time to 00:00:00
 
-        const dailyOrders = await Order.find({ orderedAt: { $gte: today } });
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1); // Next day boundary
+
+        const dailyOrders = await Order.find({
+            orderedAt: {
+                $gte: today,   // Start of today (00:00:00)
+                $lt: tomorrow, // Before start of next day (00:00:00)
+            },
+        });
 
         const totalRevenue = dailyOrders.reduce((sum, order) => sum + order.totalAmount, 0);
         const statusCounts = dailyOrders.reduce((acc, order) => {
@@ -139,13 +223,15 @@ const getDailyOrdersAnalysis = async (req, res) => {
         res.json({
             totalOrders: dailyOrders.length,
             totalRevenue,
-            statusCounts
+            statusCounts,
         });
     } catch (error) {
         console.error("Error fetching daily orders:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+
 
 // const Order = require("../models/orderModel");
 
@@ -274,12 +360,204 @@ const getFilteredOrders = async (req, res) => {
 };
 
 
-// module.exports = { getFilteredOrders };
+const getPendingOrders = async (req, res) => {
+    try {
+        if (req.user.role !== "staff") {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
+        
+        const orders = await Order.find({ status: { $in: ["Pending", "Processing"] } }).sort({ orderedAt: -1 });
+
+        res.json({ success: true, orders });
+    } catch (error) {
+        console.error("Error fetching pending orders:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+// ✅ Update Order Status (For Staff)
+// const updateOrderStatus = async (req, res) => {
+//     try {
+//         const { id } = req.params;  // ✅ Use MongoDB `_id`
+//         const { status } = req.body;
+
+//         // ✅ Find by `_id` instead of `orderId`
+//         const updatedOrder = await Order.findByIdAndUpdate(
+//             id,  // ✅ Correct way
+//             { status },
+//             { new: true }
+//         );
+
+//         if (!updatedOrder) {
+//             return res.status(404).json({ success: false, message: "Order not found" });
+//         }
+
+//         res.json({ success: true, message: "Order status updated successfully", order: updatedOrder });
+//     } catch (error) {
+//         console.error("Error updating order status:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
 
 
+// const updateOrderStatus = async (req, res) => {
+//     try {
+//         const { id } = req.params; // ✅ This is actually orderId
+//         const { status } = req.body;
+
+//         // ✅ Find order using orderId instead of _id
+//         const updatedOrder = await Order.findOneAndUpdate(
+//             { orderId: id }, // ✅ Match by orderId, not _id
+//             { status },
+//             { new: true }
+//         );
+
+//         if (!updatedOrder) {
+//             return res.status(404).json({ success: false, message: "Order not found" });
+//         }
+
+//         res.json({ success: true, message: "Order status updated successfully", order: updatedOrder });
+//     } catch (error) {
+//         console.error("Error updating order status:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
+
+
+// const updateOrderStatus = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const { status } = req.body;
+
+//         console.log("Received Order ID:", id); // ✅ Debugging line
+//         console.log("New Status:", status);
+
+//         const updatedOrder = await Order.findOneAndUpdate(
+//             { orderId: id }, // ✅ Searching by orderId
+//             { status },
+//             { new: true }
+//         );
+
+//         if (!updatedOrder) {
+//             console.log("❌ Order Not Found in Database");
+//             return res.status(404).json({ success: false, message: "Order not found" });
+//         }
+
+//         console.log("✅ Order Updated:", updatedOrder);
+//         res.json({ success: true, message: "Order status updated", order: updatedOrder });
+
+//     } catch (error) {
+//         console.error("🔥 Error updating order:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
+
+// const updateOrderStatus = async (req, res) => {
+//     try {
+//         if (req.user.role !== "staff") {
+//             return res.status(403).json({ success: false, message: "Access denied" });
+//         }
+
+//         const { id } = req.params; // Either ObjectId or orderId
+//         const { status } = req.body; // New status from frontend
+
+//         // Validate status
+//         const validStatuses = ["Pending", "Processing", "Completed", "Cancelled"];
+//         if (!validStatuses.includes(status)) {
+//             return res.status(400).json({ success: false, message: "Invalid status value" });
+//         }
+
+//         // Find order by _id or orderId
+//         const order = await Order.findOne({ $or: [{ _id: id }, { orderId: id }] });
+
+//         if (!order) {
+//             return res.status(404).json({ success: false, message: "Order not found" });
+//         }
+
+//         // Update status
+//         order.status = status;
+//         await order.save();
+
+//         res.json({ success: true, message: "Order status updated successfully", order });
+//     } catch (error) {
+//         console.error("Error updating order status:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
+
+
+// ✅ Update order status using either `orderId` or `_id`
+//  const updateOrderStatus = async (req, res) => {
+//     try {
+//         if (req.user.role !== "staff") {
+//             return res.status(403).json({ success: false, message: "Access denied" });
+//         }
+
+//         const { id } = req.params; // Extract `_id` from request URL
+//         const { status } = req.body; // Get the new status
+
+//         const updatedOrder = await Order.findByIdAndUpdate(
+//             id, 
+//             { status }, 
+//             { new: true } // Return the updated document
+//         );
+
+//         if (!updatedOrder) {
+//             return res.status(404).json({ success: false, message: "Order not found" });
+//         }
+
+//         res.json({ success: true, message: "Order status updated successfully", order: updatedOrder });
+//     } catch (error) {
+//         console.error("Error updating order status:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+//  };
+
+
+const updateOrderStatus = async (req, res) => {
+    try {
+        // Ensure only staff can update order status
+        if (req.user.role !== "staff") {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
+
+        const { id } = req.params; // Extract MongoDB `_id`
+        const { status } = req.body; // Get new status
+
+        // Ensure the status is valid
+        const validStatuses = ["Pending", "Processing", "Completed", "Cancelled"];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: "Invalid status value" });
+        }
+
+        // Find and update the order
+        const updatedOrder = await Order.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true } // Return updated document
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // ✅ Emit a real-time update to all connected clients
+        global.io.emit("orderUpdated", {
+            orderId: updatedOrder._id,   // MongoDB `_id`
+            customOrderId: updatedOrder.orderId,  // Manually created order ID
+            status: updatedOrder.status
+        });
+
+        res.json({ success: true, message: "Order status updated successfully", order: updatedOrder });
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
 // ✅ Export all controllers at once
 module.exports = {
     placeOrder,
     getCustomerOrders,
-    getDailyOrdersAnalysis,getFilteredOrders
+    getDailyOrdersAnalysis,getFilteredOrders,
+    getPendingOrders,
+    updateOrderStatus,
 };
