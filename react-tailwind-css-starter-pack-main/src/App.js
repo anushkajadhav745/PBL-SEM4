@@ -123,6 +123,9 @@ import DeleteMenu from "./Components/DeleteItem";
 import Cart from "./Components/Cart"
 import CustomerOrders from "./Components/CustomerOrders"
 
+import CheckoutPage from "./Components/CheckOut";
+import PaymentPage from "./Components/PaymentPage";
+
 
 import MonthOrdersPage from "./Components/MonthWiseOrders";
 import DayOrdersPage from "./Components/DayWiseOrders";
@@ -181,7 +184,9 @@ function MainApp() {
           <Route path="/customer-dashboard" element={userRole === "customer" ? <CustomerDashboard /> : <Navigate to="/login" />} />
          <Route path="/customer/menu" element={userRole === "customer" ? <DisplayMenu /> : <Navigate to="/login" />} />
         <Route path="/customer/cart" element={userRole === "customer" ? <Cart /> : <Navigate to="/login" />} />
-        <Route path="/customer/orders" element={userRole === "customer" ? <CustomerOrders /> : <Navigate to="/login" />} /> 
+        <Route path="/customer/orders" element={userRole === "customer" ? <CustomerOrders /> : <Navigate to="/login" />} />
+        <Route path="/customer/checkout" element={userRole === "customer" ? <CheckoutPage /> : <Navigate to="/login" />} />
+        <Route path="/customer/payment" element={userRole === "customer" ? <PaymentPage /> : <Navigate to="/login" />} />  
 
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

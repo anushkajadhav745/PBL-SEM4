@@ -556,7 +556,7 @@ const CustomerSignup = () => {
   style={{ backgroundImage: `url(${BackI})` }}
 >
   {/* Blur Overlay */}
-  <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-md"></div>
+  <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
 
   {/* Form Container */}
   <div className="relative max-w-md mx-auto bg-white p-6 rounded-lg shadow-md my-4">

@@ -412,7 +412,7 @@ const customerSchema = new mongoose.Schema({
 });
 
 // Create Indexes for faster lookups
-customerSchema.index({ email: 1 });
+// customerSchema.index({ email: 1 });
 customerSchema.index({ "orders.orderId": 1 }, { unique: true }); // Ensures orderId is unique
 
 const Customer = mongoose.model("Customer", customerSchema);

@@ -196,7 +196,12 @@ const customerSignup = async (req, res) => {
 
         // Generate JWT token for auto-login
         console.log("Generating JWT token.");
-        const token = jwt.sign({ id: newCustomer._id, userType: newCustomer.userType }, JWT_SECRET, { expiresIn: "7d" });
+        const token = jwt.sign({ id: newCustomer._id, userType: newCustomer.userType,role:"customer" }, JWT_SECRET, { expiresIn: "7d" });
+        // const token = jwt.sign(
+        //     { id: customer._id, role: "customer", userType: customer.userType },  
+        //     JWT_SECRET,
+        //     { expiresIn: "7d" }
+        // );
         console.log("JWT token generated:", token);
 
         res.status(201).json({ message: "Signup successful", customer: newCustomer, token });
