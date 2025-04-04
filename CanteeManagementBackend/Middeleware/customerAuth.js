@@ -84,6 +84,7 @@ module.exports = (req, res, next) => {
 
     req.customer = decoded; // Attach customer data to request
     console.log("✅ Customer authentication successful!");
+    console.log("🔑 Customer Data:", req.customer); // Log customer data
     next();
   } catch (error) {
     console.error("🚨 JWT Verification Error:", error);

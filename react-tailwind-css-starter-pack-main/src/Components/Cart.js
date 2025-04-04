@@ -634,7 +634,7 @@
 // // export default CartPage;
 
 import React, { useState, useEffect } from "react";
-
+import ReceiptPage from "./Receipt";
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
@@ -763,6 +763,8 @@ const CartPage = () => {
                 setCartItems([]);
                 setTotalPrice(0);
                 alert("Order placed successfully!");
+                
+                window.location.href = "/Receipt"                    //--------------call recepit
             } else {
                 console.error("Error placing order:", data.message);
                 alert("There was an issue placing your order.");

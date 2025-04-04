@@ -270,7 +270,7 @@ const customerLogin = async (req, res) => {
         await customer.save();
 
         console.log("✅ Customer Login Successful! Token Generated:", token);
-
+        console.log("🔑 Customer Data:", customer); // Log customer data --------------------------
         res.json({ token, message: "Customer login successful" });
 
     } catch (error) {
