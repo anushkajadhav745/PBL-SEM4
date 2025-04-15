@@ -437,31 +437,31 @@
 
 // export default OrdersPage;
 
-
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Step 1
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const navigate = useNavigate(); // ✅ Step 2
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Fetch all orders for the logged-in customer
   const fetchOrders = async () => {
     try {
       const response = await fetch("http://localhost:4000/api/order/my-orders", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`, // Assuming token is in localStorage
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
       const data = await response.json();
       if (response.ok) {
-        setOrders(data.orders); // Save the fetched orders to state
+        setOrders(data.orders);
       } else {
         console.error("Error fetching orders:", data.message);
       }
@@ -470,13 +470,11 @@ const OrdersPage = () => {
     }
   };
 
-  // Handle clicking on an order to view its details
   const handleOrderClick = (orderId) => {
     const order = orders.find((order) => order.orderId === orderId);
-    setSelectedOrder(order); // Set the selected order to display its details
+    setSelectedOrder(order);
   };
 
-  // Function to format time with AM/PM
   const formatTime = (date) => {
     const options = { hour: "numeric", minute: "numeric", hour12: true };
     return new Date(date).toLocaleTimeString([], options);
@@ -506,14 +504,15 @@ const OrdersPage = () => {
               <div className="flex justify-between mb-4">
                 <p className="text-lg text-orange-600 font-semibold">Total: ₹{order.totalAmount}</p>
                 <p
-                  className={`text-sm font-semibold ${order.status === "Pending"
-                    ? "text-yellow-500"
-                    : order.status === "Completed"
-                    ? "text-green-600"
-                    : order.status === "Cancelled"
-                    ? "text-red-600"
-                    : "text-blue-500"
-                    }`}
+                  className={`text-sm font-semibold ${
+                    order.status === "Pending"
+                      ? "text-yellow-500"
+                      : order.status === "Completed"
+                      ? "text-green-600"
+                      : order.status === "Cancelled"
+                      ? "text-red-600"
+                      : "text-blue-500"
+                  }`}
                 >
                   {order.status}
                 </p>
@@ -536,15 +535,14 @@ const OrdersPage = () => {
         )}
       </div>
 
-      {/* Order Details Modal */}
       {selectedOrder && (
         <div
-          className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center"
-          onClick={() => setSelectedOrder(null)} // Close modal on click outside
+          className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center z-50"
+          onClick={() => setSelectedOrder(null)}
         >
           <div
-            className="bg-white p-6 rounded-lg w-1/2 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()} // Prevent closing the modal on inner click
+            className="bg-white p-6 rounded-lg w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-3xl font-bold text-indigo-600 mb-4">Order Details</h2>
             <p className="text-xl font-semibold mb-2">Order ID: {selectedOrder.orderId}</p>
@@ -586,12 +584,32 @@ const OrdersPage = () => {
               </p>
             </div>
 
-            <button
-              className="mt-4 px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-              onClick={() => setSelectedOrder(null)} // Close modal
-            >
-              Close
-            </button>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                
+                onClick={() =>
+                  navigate("/customer/Receipt", {
+                    state: {
+                      orderId: selectedOrder.orderId,
+                      cartItems: selectedOrder.items,
+                      totalPrice: selectedOrder.totalAmount,
+                      orderedAt: selectedOrder.orderedAt,
+                      status: selectedOrder.status
+                    },
+                  })
+                  
+                }
+              >
+                View Receipt
+              </button>
+              <button
+                className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                onClick={() => setSelectedOrder(null)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

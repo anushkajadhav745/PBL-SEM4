@@ -1,83 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useLocation } from "react-router-dom";
+ 
 
-const ReceiptPage = () => {
-    const [order, setOrder] = useState(null);
 
-    useEffect(() => {
-        fetchLatestOrder();
-    }, []);
+const Receipt = () => {
+  const location = useLocation();
+  //const { cartItems, customer, orderId } = location.state || {};
 
-    const fetchLatestOrder = async () => {
-        try {
-            const response = await fetch("http://localhost:4000/api/order/place-order", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                }
-            });
+  const { orderId, cartItems, totalPrice, orderedAt, status } = location.state || {};
 
-            const data = await response.json();
-            if (response.ok) {
-                setOrder(data.order);
-            } else {
-                console.error("Error fetching order:", data.message);
-            }
-        } catch (error) {
-            console.error("Error fetching latest order:", error);
-        }
-    };
+//  Function to format order ID
+  const formatOrderId = (id) => {
+    if (!id) return "";
+    const first7 = id.slice(0, 7).toLowerCase();
+    const last3 = id.slice(-3).toUpperCase();
+    return `${first7}${last3}`;
+  };
 
-    const formatDate = (isoDate) => {
-        const date = new Date(isoDate);
-        return date.toLocaleString();
-    };
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center py-10">
+      <div className="bg-gray-100 shadow-xl p-10 rounded-lg w-full max-w-xl">
+        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-4">
+          Order Receipt
+        </h1>
 
-    return (
-        <div className="p-6 bg-gray-100 min-h-screen flex justify-center items-center">
-            <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
-                <h1 className="text-2xl font-bold text-center mb-4">🧾 Receipt</h1>
-
-                {order ? (
-                    <>
-                        <p className="text-sm text-gray-600 text-center mb-6">
-                            Order Date: <span className="font-medium">{formatDate(order.createdAt)}</span>
-                        </p>
-
-                        <div className="divide-y divide-gray-200 mb-4">
-                            {order.items.map((item, index) => (
-                                <div key={index} className="flex justify-between py-2">
-                                    <div>
-                                        <p className="font-semibold">{item.name}</p>
-                                        <p className="text-sm text-gray-500">
-                                            ₹{item.price} × {item.quantity}
-                                        </p>
-                                    </div>
-                                    <p className="font-medium">₹{item.price * item.quantity}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="flex justify-between items-center border-t pt-4 mt-4">
-                            <span className="text-lg font-bold">Total</span>
-                            <span className="text-lg font-bold text-green-600">₹{order.totalPrice}</span>
-                        </div>
-
-                        <div className="mt-6 text-center">
-                            <button
-                                onClick={() => window.print()}
-                                className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
-                            >
-                                Print Receipt
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <p className="text-gray-500 text-center">Loading your receipt...</p>
-                )}
-            </div>
+        <div className="text-center text-gray-700 mb-6">
+          <p className="text-lg font-semibold">
+            Order ID:{" "}
+            <span className="text-black tracking-wide">
+              {formatOrderId(orderId)}
+            </span>
+          </p>
+          {/* <p className="text-md mt-2">
+            Customer: <span className="font-medium">{customer?.name}</span>
+          </p>
+          <p className="text-md">
+            Email: <span className="font-medium">{customer?.email}</span>
+          </p> */}
         </div>
-    );
+
+        <div className="border-t pt-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-3">Items</h2>
+          <ul className="space-y-2">
+            {cartItems?.map((item, idx) => (
+              <li
+                key={idx}
+                className="flex justify-between text-md font-medium text-gray-600"
+              >
+                <span>{item.name}</span>
+                <span>Qty: {item.quantity}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500">
+            Thank you for your order! 😊
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default ReceiptPage;
+export default Receipt;

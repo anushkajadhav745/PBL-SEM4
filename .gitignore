@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-CanteeManagementBackend/node_modules
+CanteeManagementBackend\node_modules
 react-tailwind-css-starter-pack-main/node_modules
 CanteeManagementBackend/.pnp
 

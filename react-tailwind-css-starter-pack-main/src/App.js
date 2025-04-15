@@ -122,7 +122,7 @@ import DisplayMenu from "./Components/DisplayMenu"
 import DeleteMenu from "./Components/DeleteItem";
 import Cart from "./Components/Cart"
 import CustomerOrders from "./Components/CustomerOrders"
-
+import ReceiptPage from "./Components/Receipt";
 import CheckoutPage from "./Components/CheckOut";
 import PaymentPage from "./Components/PaymentPage";
 
@@ -187,6 +187,9 @@ function MainApp() {
         <Route path="/customer/orders" element={userRole === "customer" ? <CustomerOrders /> : <Navigate to="/login" />} />
         <Route path="/customer/checkout" element={userRole === "customer" ? <CheckoutPage /> : <Navigate to="/login" />} />
         <Route path="/customer/payment" element={userRole === "customer" ? <PaymentPage /> : <Navigate to="/login" />} />  
+
+        <Route path="/customer/Receipt" element={<ReceiptPage />} />
+
 
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

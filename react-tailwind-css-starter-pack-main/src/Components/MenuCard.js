@@ -240,6 +240,8 @@ const Card = ({ item, quantity, onQuantityChange, onAddToCart }) => {
                         w-64 h-80 bg-white transition-transform transform hover:scale-105 
                         hover:bg-gray-100 border-gray-300">
             {/* Item Image */}
+            console.log("Image URL:", item.imageUrl);
+
             <img 
                 src={item.imageUrl} 
                 alt={item.name} 
