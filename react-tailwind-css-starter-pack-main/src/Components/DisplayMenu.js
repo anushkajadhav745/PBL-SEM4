@@ -909,13 +909,13 @@ const MenuDisplay = () => {
                 // Assuming the backend returns the updated cart
                 if (response.status === 200) {
                     setCart(response.data.cart); // Update the local cart with the response data
-                    alert(`${item.name} added to cart!`);
+                    //alert(`${item.name} added to cart!`);
                 } else {
-                    alert("Failed to add item to cart.");
+                    //alert("Failed to add item to cart.");
                 }
             } catch (error) {
                 console.error("Error adding item to cart:", error);
-                alert("An error occurred while adding the item to the cart.");
+                //alert("An error occurred while adding the item to the cart.");
             }
         } else {
             alert("Please select a quantity before adding to cart.");

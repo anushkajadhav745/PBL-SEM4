@@ -172,54 +172,106 @@ const addAdmin = async (req, res) => {
 
 
 
-  const addMenuItem = async (req, res) => {
-    try {
-        const { name, description, price, category, available, imageUrl, preparationTime, rating } = req.body;
+//   const addMenuItem = async (req, res) => {
+//     try {
+//         const { name, description, price, category, available, imageUrl, preparationTime, rating } = req.body;
 
-        // Validate required fields
-        if (!name || !price || !category) {
-            return res.status(400).json({ message: "Name, price, and category are required" });
+//         // Validate required fields
+//         if (!name || !price || !category) {
+//             return res.status(400).json({ message: "Name, price, and category are required" });
+//         }
+
+//         // Check if menu item with the same name already exists
+//         const existingMenu = await Menu.findOne({ name });
+//         if (existingMenu) {
+//             return res.status(400).json({ message: "Menu item already exists" });
+//         }
+
+//         // Generate unique menuId starting with "I" + 6 random characters
+//         let menuId;
+//         let isUnique = false;
+
+//         while (!isUnique) {
+//             menuId = "I" + nanoid(); // Example: I3FJ8ZP
+//             const existingMenuId = await Menu.findOne({ menuId });
+//             if (!existingMenuId) isUnique = true;
+//         }
+
+//         // Create new menu item
+//         const newMenuItem = new Menu({
+//             menuId,
+//             name,
+//             description,
+//             price,
+//             category,
+//             available: available !== undefined ? available : true, // Default: true
+//             imageUrl,
+//             preparationTime: preparationTime || 10, // Default: 10 minutes
+//             rating: rating || 0 // Default: 0 rating
+//         });
+
+//         // Save to database
+//         await newMenuItem.save();
+
+//         res.status(201).json({ message: "Menu item added successfully", menu: newMenuItem });
+
+//     } catch (error) {
+//         console.error("Error adding menu item:", error);
+//         res.status(500).json({ message: "Server error", error });
+//     }
+// };
+
+const addMenuItem = async (req, res) => {
+    try {
+        const { name, description, price, category, available, preparationTime, rating } = req.body;
+
+        // Check if a file is uploaded
+        if (!req.file) {
+            return res.status(400).json({ message: "Dish image is required." });
         }
 
-        // Check if menu item with the same name already exists
+        // Check for required fields
+        if (!name || !price || !category) {
+            return res.status(400).json({ message: "Name, price, and category are required." });
+        }
+
+        // Check if menu item already exists
         const existingMenu = await Menu.findOne({ name });
         if (existingMenu) {
-            return res.status(400).json({ message: "Menu item already exists" });
+            return res.status(400).json({ message: "Menu item already exists." });
         }
 
-        // Generate unique menuId starting with "I" + 6 random characters
+        // Generate unique menuId
         let menuId;
         let isUnique = false;
-
         while (!isUnique) {
-            menuId = "I" + nanoid(); // Example: I3FJ8ZP
-            const existingMenuId = await Menu.findOne({ menuId });
-            if (!existingMenuId) isUnique = true;
+            menuId = "I" + nanoid();
+            const existing = await Menu.findOne({ menuId });
+            if (!existing) isUnique = true;
         }
 
-        // Create new menu item
+        // Construct the new menu item
         const newMenuItem = new Menu({
             menuId,
             name,
             description,
             price,
             category,
-            available: available !== undefined ? available : true, // Default: true
-            imageUrl,
-            preparationTime: preparationTime || 10, // Default: 10 minutes
-            rating: rating || 0 // Default: 0 rating
+            available: available !== undefined ? available : true,
+            imageUrl: `/dish_images/${req.file.filename}`,
+            preparationTime: preparationTime || 10,
+            rating: rating || 0
         });
 
-        // Save to database
         await newMenuItem.save();
 
         res.status(201).json({ message: "Menu item added successfully", menu: newMenuItem });
-
     } catch (error) {
         console.error("Error adding menu item:", error);
-        res.status(500).json({ message: "Server error", error });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 
 
@@ -248,21 +300,97 @@ const deleteMenuItem = async (req, res) => {
 
 
 //get All menu Items
+// const getAllMenuItems = async (req, res) => {
+//     try {
+//         // Fetch all menu items from the database
+//         const menuItems = await Menu.find();
+        
+//         if (!menuItems || menuItems.length === 0) {
+//             return res.status(404).json({ message: "No menu items found" });
+//         }
+        
+//         res.status(200).json({ message: "Menu items retrieved successfully", menuItems });
+//     } catch (error) {
+//         res.status(500).json({ message: "Server error", error: error.message });
+//     }
+// };
+
+
+// const getAllMenuItems = async (req, res) => {
+//     try {
+//       const menuItems = await Menu.find(); // imageUrl should be in schema
+  
+//       if (!menuItems || menuItems.length === 0) {
+//         return res.status(404).json({ message: "No menu items found" });
+//       }
+  
+//       res.status(200).json({
+//         message: "Menu items retrieved successfully",
+//         menuItems, // this should include imageUrl
+//       });
+//     } catch (error) {
+//       res.status(500).json({ message: "Server error", error: error.message });
+//     }
+//   };
+
+
 const getAllMenuItems = async (req, res) => {
     try {
-        // Fetch all menu items from the database
-        const menuItems = await Menu.find();
-        
-        if (!menuItems || menuItems.length === 0) {
-            return res.status(404).json({ message: "No menu items found" });
-        }
-        
-        res.status(200).json({ message: "Menu items retrieved successfully", menuItems });
+      // Extract query parameters
+      const { category, available, minPrice, maxPrice, sortBy, page = 1, limit = 10 } = req.query;
+  
+      // Build MongoDB query object
+      let query = {};
+      if (category) query.category = category;
+      if (available !== undefined) query.available = available === "true";
+      if (minPrice) query.price = { ...query.price, $gte: parseFloat(minPrice) };
+      if (maxPrice) query.price = { ...query.price, $lte: parseFloat(maxPrice) };
+  
+      // Sort options
+      let sortOptions = {};
+      if (sortBy) {
+        const [field, order] = sortBy.split(":");
+        sortOptions[field] = order === "desc" ? -1 : 1;
+      } else {
+        sortOptions.createdAt = -1;
+      }
+  
+      // Pagination logic
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+  
+      // Fetch data
+      const menuItems = await Menu.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(parseInt(limit));
+  
+      // Add full image URL to each item
+      const menuItemsWithImages = menuItems.map((item) => {
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        return {
+          ...item.toObject(),
+          imageUrl: item.imageUrl ? `${baseUrl}${item.imageUrl}` : `${baseUrl}/default-image.jpg`,
+        };
+      });
+  
+      // Total count
+      const totalItems = await Menu.countDocuments(query);
+  
+      // Response
+      res.status(200).json({
+        message: "Menu items fetched successfully",
+        menuItems: menuItemsWithImages, // consistent with your frontend
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: parseInt(page),
+      });
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+      console.error("Error fetching menu items:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-};
-
+  };
+  
+  
 
 const updateMenuItem = async (req, res) => {
     try {

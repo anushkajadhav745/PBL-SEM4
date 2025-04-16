@@ -1,6 +1,7 @@
 const express = require("express");
 const { loginAdmin,addAdmin,addStaff,addMenuItem,deleteMenuItem,getAllMenuItems,updateMenuItem } = require("../controllers/adminAuthC");
 const adminMiddleware = require("../Middeleware/adminAuth"); // Only another admin can add an admin
+const upload=require("../utils/uploadDishImage");
 
 const router = express.Router();
 
@@ -17,7 +18,8 @@ router.post("/add-staff", adminMiddleware, addStaff);
 router.get("/all-items", adminMiddleware, getAllMenuItems);
 
 //add a menu
-router.post("/menu/add-menu", adminMiddleware, addMenuItem);
+//router.post("/menu/add-menu", adminMiddleware, addMenuItem);
+router.post("/add-menu-item", upload.single("image"),adminMiddleware, addMenuItem);
 
 //delete the menu item
 router.delete("/delete-menu/:menuId",adminMiddleware, deleteMenuItem);

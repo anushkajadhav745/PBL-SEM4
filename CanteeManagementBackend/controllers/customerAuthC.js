@@ -80,7 +80,7 @@ const customerSignup = async (req, res) => {
 
         console.log("JWT token generated:", token);
 
-        res.status(201).json({ message: "Signup successful", customer: newCustomer, token });
+        //res.status(201).json({ message: "Signup successful", customer: newCustomer, token });
         console.log("Response sent to client.");
     } catch (error) {
         console.error("Signup error:", error);
@@ -130,6 +130,229 @@ const customerLogin = async (req, res) => {
 const Menu = require("../Model/menu"); // Import Menu schema
 
 // Fetch all menu items with filtering, pagination, and sorting
+// const getAllMenuItems = async (req, res) => {
+//     try {
+//         // Extract query parameters
+//         const { category, available, minPrice, maxPrice, sortBy, page = 1, limit = 10 } = req.query;
+
+//         // Build query object
+//         let query = {};
+//         if (category) query.category = category; // Filter by category
+//         if (available !== undefined) query.available = available === "true"; // Filter by availability
+//         if (minPrice) query.price = { ...query.price, $gte: parseFloat(minPrice) }; // Min price filter
+//         if (maxPrice) query.price = { ...query.price, $lte: parseFloat(maxPrice) }; // Max price filter
+
+//         // Sorting options
+//         let sortOptions = {};
+//         if (sortBy) {
+//             const [field, order] = sortBy.split(":"); // Example: "price:asc"
+//             sortOptions[field] = order === "desc" ? -1 : 1;
+//         } else {
+//             sortOptions.createdAt = -1; // Default: Sort by latest added
+//         }
+
+//         // Pagination
+//         const skip = (parseInt(page) - 1) * parseInt(limit);
+
+//         // Fetch menu items
+//         const menuItems = await Menu.find(query)
+//             .sort(sortOptions)
+//             .skip(skip)
+//             .limit(parseInt(limit));
+
+//         // Count total items
+//         const totalItems = await Menu.countDocuments(query);
+
+//         // Response
+//         res.status(200).json({
+//             message: "Menu items fetched successfully",
+//             menu: menuItems,
+//             totalItems,
+//             totalPages: Math.ceil(totalItems / limit),
+//             currentPage: parseInt(page),
+//         });
+//     } catch (error) {
+//         console.error("Error fetching menu items:", error);
+//         res.status(500).json({ message: "Server error", error });
+//     }
+// };
+
+
+// const getAllMenuItems = async (req, res) => {
+//     try {
+//         // Extract query parameters
+//         const { category, available, minPrice, maxPrice, sortBy, page = 1, limit = 10 } = req.query;
+
+//         // Build query object
+//         let query = {};
+//         if (category) query.category = category; // Filter by category
+//         if (available !== undefined) query.available = available === "true"; // Filter by availability
+//         if (minPrice) query.price = { ...query.price, $gte: parseFloat(minPrice) }; // Min price filter
+//         if (maxPrice) query.price = { ...query.price, $lte: parseFloat(maxPrice) }; // Max price filter
+
+//         // Sorting options
+//         let sortOptions = {};
+//         if (sortBy) {
+//             const [field, order] = sortBy.split(":"); // Example: "price:asc"
+//             sortOptions[field] = order === "desc" ? -1 : 1;
+//         } else {
+//             sortOptions.createdAt = -1; // Default: Sort by latest added
+//         }
+
+//         // Pagination
+//         const skip = (parseInt(page) - 1) * parseInt(limit);
+
+//         // Fetch menu items
+//         const menuItems = await Menu.find(query)
+//             .sort(sortOptions)
+//             .skip(skip)
+//             .limit(parseInt(limit));
+
+//         // Add full image URL to each menu item
+//         const menuItemsWithImages = menuItems.map(item => {
+//             // Construct the full image URL using the filename stored in `item.imageUrl`
+//             const imageUrl = `${req.protocol}://${req.get('host')}/Uploads/DishImages/${item.imageUrl}`;
+//             return {
+//                 ...item.toObject(),
+//                 imageUrl, // Add the full image URL
+//             };
+//         });
+
+//         // Count total items
+//         const totalItems = await Menu.countDocuments(query);
+
+//         // Response
+//         res.status(200).json({
+//             message: "Menu items fetched successfully",
+//             menu: menuItemsWithImages,
+//             totalItems,
+//             totalPages: Math.ceil(totalItems / limit),
+//             currentPage: parseInt(page),
+//         });
+//     } catch (error) {
+//         console.error("Error fetching menu items:", error);
+//         res.status(500).json({ message: "Server error", error });
+//     }
+// };
+
+// const getAllMenuItems = async (req, res) => {
+//     try {
+//         // Extract query parameters
+//         const { category, available, minPrice, maxPrice, sortBy, page = 1, limit = 10 } = req.query;
+
+//         // Build query object
+//         let query = {};
+//         if (category) query.category = category; // Filter by category
+//         if (available !== undefined) query.available = available === "true"; // Filter by availability
+//         if (minPrice) query.price = { ...query.price, $gte: parseFloat(minPrice) }; // Min price filter
+//         if (maxPrice) query.price = { ...query.price, $lte: parseFloat(maxPrice) }; // Max price filter
+
+//         // Sorting options
+//         let sortOptions = {};
+//         if (sortBy) {
+//             const [field, order] = sortBy.split(":"); // Example: "price:asc"
+//             sortOptions[field] = order === "desc" ? -1 : 1;
+//         } else {
+//             sortOptions.createdAt = -1; // Default: Sort by latest added
+//         }
+
+//         // Pagination
+//         const skip = (parseInt(page) - 1) * parseInt(limit);
+
+//         // Fetch menu items
+//         const menuItems = await Menu.find(query)
+//             .sort(sortOptions)
+//             .skip(skip)
+//             .limit(parseInt(limit));
+
+//         // Add full image URL to each menu item
+//         const menuItemsWithImages = menuItems.map(item => {
+//             // Construct the full image URL using the filename stored in `item.imageUrl`
+//             const imageUrl = `${req.protocol}://${req.get('host')}/uploads/dish_images/${item.imageUrl.split('/')[2]}`;
+//             console.log("Serving image URL: ", imageUrl);  // Log the image URL being served
+//             return {
+//                 ...item.toObject(),
+//                 imageUrl, // Add the full image URL
+//             };
+//         });
+
+//         // Count total items
+//         const totalItems = await Menu.countDocuments(query);
+
+//         // Response
+//         res.status(200).json({
+//             message: "Menu items fetched successfully",
+//             menu: menuItemsWithImages,
+//             totalItems,
+//             totalPages: Math.ceil(totalItems / limit),
+//             currentPage: parseInt(page),
+//         });
+//     } catch (error) {
+//         console.error("Error fetching menu items:", error);
+//         res.status(500).json({ message: "Server error", error });
+//     }
+// };
+
+
+// const getAllMenuItems = async (req, res) => {
+//     try {
+//         // Extract query parameters
+//         const { category, available, minPrice, maxPrice, sortBy, page = 1, limit = 10 } = req.query;
+
+//         // Build query object
+//         let query = {};
+//         if (category) query.category = category; // Filter by category
+//         if (available !== undefined) query.available = available === "true"; // Filter by availability
+//         if (minPrice) query.price = { ...query.price, $gte: parseFloat(minPrice) }; // Min price filter
+//         if (maxPrice) query.price = { ...query.price, $lte: parseFloat(maxPrice) }; // Max price filter
+
+//         // Sorting options
+//         let sortOptions = {};
+//         if (sortBy) {
+//             const [field, order] = sortBy.split(":"); // Example: "price:asc"
+//             sortOptions[field] = order === "desc" ? -1 : 1;
+//         } else {
+//             sortOptions.createdAt = -1; // Default: Sort by latest added
+//         }
+
+//         // Pagination
+//         const skip = (parseInt(page) - 1) * parseInt(limit);
+
+//         // Fetch menu items
+//         const menuItems = await Menu.find(query)
+//             .sort(sortOptions)
+//             .skip(skip)
+//             .limit(parseInt(limit));
+
+//         // Add full image URL to each menu item
+//         const menuItemsWithImages = menuItems.map(item => {
+//             // Construct the full image URL
+//             const imageUrl = `${req.protocol}://${req.get('host')}/dish_images${item.imageUrl}`; // Fix URL construction
+//             console.log("Serving image URL: ", imageUrl);  // Log the image URL being served
+//             return {
+//                 ...item.toObject(),
+//                 imageUrl, // Add the full image URL
+//             };
+//         });
+
+//         // Count total items
+//         const totalItems = await Menu.countDocuments(query);
+
+//         // Response
+//         res.status(200).json({
+//             message: "Menu items fetched successfully",
+//             menu: menuItemsWithImages,
+//             totalItems,
+//             totalPages: Math.ceil(totalItems / limit),
+//             currentPage: parseInt(page),
+//         });
+//     } catch (error) {
+//         console.error("Error fetching menu items:", error);
+//         res.status(500).json({ message: "Server error", error });
+//     }
+// };
+
+
 const getAllMenuItems = async (req, res) => {
     try {
         // Extract query parameters
@@ -160,13 +383,24 @@ const getAllMenuItems = async (req, res) => {
             .skip(skip)
             .limit(parseInt(limit));
 
+        // Add full image URL to each menu item
+        const menuItemsWithImages = menuItems.map(item => {
+            // Construct the full image URL without duplicating '/dish_images'
+            const imageUrl = `${req.protocol}://${req.get('host')}${item.imageUrl}`;
+            console.log("Serving image URL: ", imageUrl);  // Log the image URL being served
+            return {
+                ...item.toObject(),
+                imageUrl, // Add the full image URL
+            };
+        });
+
         // Count total items
         const totalItems = await Menu.countDocuments(query);
 
         // Response
         res.status(200).json({
             message: "Menu items fetched successfully",
-            menu: menuItems,
+            menu: menuItemsWithImages,
             totalItems,
             totalPages: Math.ceil(totalItems / limit),
             currentPage: parseInt(page),
@@ -176,6 +410,7 @@ const getAllMenuItems = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
 
 
 

@@ -75,7 +75,7 @@
 const Order = require("../Model/Orders");
 const Customer = require("../Model/customer");
 
-// 🛒 Place an Order
+// Place an Order
 const placeOrder = async (req, res) => {
     try {
         const customerId = req.customer.id;
@@ -107,6 +107,53 @@ const placeOrder = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+
+
+// const Order = require("../models/Order");
+// const Customer = require("../models/Customer");
+
+// const placeOrder = async (req, res) => {
+//   try {
+//     const customerId = req.customer.id;
+//     const { paymentInfo } = req.body;
+
+//     const customer = await Customer.findById(customerId);
+
+//     if (!customer || !customer.cart.length) {
+//       return res.status(400).json({ message: "Cart is empty or user not found" });
+//     }
+
+//     // Create new order
+//     const newOrder = new Order({
+//       customerId,
+//       items: customer.cart,
+//       paymentStatus: "Paid",
+//       paymentDetails: {
+//         orderId: paymentInfo.razorpay_order_id,
+//         paymentId: paymentInfo.razorpay_payment_id,
+//         signature: paymentInfo.razorpay_signature,
+//       },
+//     });
+
+//     await newOrder.save();
+
+//     // Clear customer cart
+//     customer.cart = [];
+//     await customer.save();
+
+//     res.status(201).json({
+//       message: "Order placed successfully",
+//       order: newOrder,
+//     });
+//   } catch (error) {
+//     console.error("Error placing order:", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+//module.exports = { placeOrder };
+
 
 // 🛒 Get Orders for Logged-in Customer
 const getCustomerOrders = async (req, res) => {

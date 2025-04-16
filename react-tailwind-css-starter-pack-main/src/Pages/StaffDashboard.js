@@ -823,7 +823,7 @@ const StaffDashboard = () => {
 
       const data = await response.json();
       console.log("Order updated:", data);
-      alert(`Order status updated to ${newStatus}!`);
+      //alert(`Order status updated to ${newStatus}!`);
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -832,7 +832,7 @@ const StaffDashboard = () => {
       );
     } catch (error) {
       console.error("Failed to update order:", error);
-      alert("Failed to update order. Please try again.");
+      //alert("Failed to update order. Please try again.");
     }
   };
 
